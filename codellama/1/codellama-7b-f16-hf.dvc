@@ -1,0 +1,6 @@
+outs:
+- md5: 87d12cf9569913832a7feb607dcb265d.dir
+  size: 13479562416
+  nfiles: 9
+  hash: md5
+  path: codellama-7b-f16-hf
