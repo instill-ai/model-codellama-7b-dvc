@@ -1,10 +1,8 @@
 # pylint: skip-file
 import os
 
-# Enable following code for gpu mode only
-# TORCH_GPU_DEVICE_ID = 0
-os.environ["CUDA_VISIBLE_DEVICES"] = f"0,1,2,3"
-
+# os.environ["CUDA_VISIBLE_DEVICES"] = f"0,1,2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = f"0"
 
 import io
 import time
@@ -44,7 +42,7 @@ from instill.helpers import (
 
 
 @instill_deployment
-class Llama2:
+class CodeLlama:
     def __init__(self, model_path: str):
         self.application_name = "_".join(model_path.split("/")[3:5])
         self.deployement_name = model_path.split("/")[4]
@@ -58,25 +56,21 @@ class Llama2:
         print(f"torch.cuda.device(0) : {torch.cuda.device(0)}")
         print(f"torch.cuda.get_device_name(0) : {torch.cuda.get_device_name(0)}")
 
-
         nf4_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
             bnb_4bit_use_double_quant=True,
-            bnb_4bit_compute_dtype=torch.bfloat16
+            bnb_4bit_compute_dtype=torch.bfloat16,
         )
 
-        # model_nf4 = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=nf4_config)    
-
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_path # , torch_dtype=torch.float32, low_cpu_mem_usage=True
+            model_path  # , torch_dtype=torch.float32, low_cpu_mem_usage=True
         )
         self.pipeline = transformers.pipeline(
             "text-generation",
             model=model_path,
-            # torch_dtype=torch.float32,  # Needs 26G Memory
             device="gpu",
-            quantization_config=nf4_config
+            quantization_config=nf4_config,
         )
 
     def ModelMetadata(self, req):
@@ -251,7 +245,7 @@ class ModifiedInstillDeployable(InstillDeployable):
     def _update_num_gpus(self, num_gpus: float):
         if self._deployment.ray_actor_options is not None:
             self._deployment.ray_actor_options.update(
-                {"num_gpus": 4}
+                {"num_gpus": 1}
             )  # Test: Forcing GPU to be 4
 
 
