@@ -241,15 +241,15 @@ class CodeLlama:
         )
 
 
-class ModifiedInstillDeployable(InstillDeployable):
-    def _update_num_gpus(self, num_gpus: float):
-        if self._deployment.ray_actor_options is not None:
-            self._deployment.ray_actor_options.update(
-                {"num_gpus": 2}
-            )  # Test: Forcing GPU to be 4
+# class ModifiedInstillDeployable(InstillDeployable):
+#     def _update_num_gpus(self, num_gpus: float):
+#         if self._deployment.ray_actor_options is not None:
+#             self._deployment.ray_actor_options.update(
+#                 {"num_gpus": 2}
+#             )  # Test: Forcing GPU to be 4
 
 
-deployable = ModifiedInstillDeployable(
+deployable = InstillDeployable(
     CodeLlama, model_weight_or_folder_name="CodeLlama-70b-hf/", use_gpu=True
 )
 
