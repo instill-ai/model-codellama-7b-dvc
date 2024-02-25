@@ -2,7 +2,7 @@
 import os
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = f"0,1,2,3"
-os.environ["CUDA_VISIBLE_DEVICES"] = f"0,1"
+os.environ["CUDA_VISIBLE_DEVICES"] = f"0"
 
 import io
 import time
@@ -69,7 +69,8 @@ class CodeLlama:
         self.pipeline = transformers.pipeline(
             "text-generation",
             model=model_path,
-            device="gpu",
+            # device="gpu",
+            device_map={"": "cpu"},  # test
             quantization_config=nf4_config,
         )
 
@@ -241,15 +242,18 @@ class CodeLlama:
         )
 
 
-# class ModifiedInstillDeployable(InstillDeployable):
-#     def _update_num_gpus(self, num_gpus: float):
-#         if self._deployment.ray_actor_options is not None:
-#             self._deployment.ray_actor_options.update(
-#                 {"num_gpus": 2}
-#             )  # Test: Forcing GPU to be 4
+class ModifiedInstillDeployable(InstillDeployable):
+    def _update_num_gpus(self, num_gpus: float):
+        if self._deployment.ray_actor_options is not None:
+            self._deployment.ray_actor_options.update(
+                {"num_gpus": 1}
+            )  # Test: Forcing GPU to be 4
+
+    def _determine_vram_usage(self, model_path: str, total_vram: str):
+        return 1
 
 
-deployable = InstillDeployable(
+deployable = ModifiedInstillDeployable(
     CodeLlama, model_weight_or_folder_name="CodeLlama-70b-hf/", use_gpu=True
 )
 
