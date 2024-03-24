@@ -64,7 +64,7 @@ class CodeLlama:
             model=model_path,
             torch_dtype=torch.float16,
             device_map="cuda",
-            use_safetensors=True,
+            # use_safetensors=True,
         )
 
     def ModelMetadata(self, req):
