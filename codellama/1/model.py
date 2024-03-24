@@ -56,22 +56,15 @@ class CodeLlama:
         print(f"torch.cuda.device(0) : {torch.cuda.device(0)}")
         print(f"torch.cuda.get_device_name(0) : {torch.cuda.get_device_name(0)}")
 
-        nf4_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
-        )
-
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_path  # , torch_dtype=torch.float32, low_cpu_mem_usage=True
+            model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
         )
         self.pipeline = transformers.pipeline(
             "text-generation",
             model=model_path,
-            # device="gpu",
-            device_map={"": "cpu"},  # test
-            quantization_config=nf4_config,
+            torch_dtype=torch.float16,
+            device_map="cuda",
+            use_safetensors=True,
         )
 
     def ModelMetadata(self, req):
@@ -242,19 +235,20 @@ class CodeLlama:
         )
 
 
-class ModifiedInstillDeployable(InstillDeployable):
-    def _update_num_gpus(self, num_gpus: float):
-        if self._deployment.ray_actor_options is not None:
-            self._deployment.ray_actor_options.update(
-                {"num_gpus": 1}
-            )  # Test: Forcing GPU to be 4
+# Following codes only required in testing ..
+# class ModifiedInstillDeployable(InstillDeployable):
+#     def _update_num_gpus(self, num_gpus: float):
+#         if self._deployment.ray_actor_options is not None:
+#             self._deployment.ray_actor_options.update(
+#                 {"num_gpus": 1}
+#             )  # Test: Forcing GPU to be 4
 
-    def _determine_vram_usage(self, model_path: str, total_vram: str):
-        return 1
+#     def _determine_vram_usage(self, model_path: str, total_vram: str):
+#         return 1
 
 
-deployable = ModifiedInstillDeployable(
-    CodeLlama, model_weight_or_folder_name="CodeLlama-70b-hf/", use_gpu=True
+deployable = InstillDeployable(
+    CodeLlama, model_weight_or_folder_name="CodeLlama-7b-hf/", use_gpu=True
 )
 
 # # Optional
