@@ -37,10 +37,7 @@ from instill.helpers import (
 @instill_deployment
 class CodeLlama:
     def __init__(self):
-        print(f"application_name: {self.application_name}")
-        print(f"deployement_name: {self.deployement_name}")
         print(f"torch version: {torch.__version__}")
-
         print(f"torch.cuda.is_available() : {torch.cuda.is_available()}")
         print(f"torch.cuda.device_count() : {torch.cuda.device_count()}")
         # print(f"torch.cuda.current_device() : {torch.cuda.current_device()}")
@@ -49,7 +46,7 @@ class CodeLlama:
 
         # https://huggingface.co/codellama/CodeLlama-7b-hf
         # Download through huggingface
-        ACCESS_TOKEN = "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"
+        ACCESS_TOKEN = "..."
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             "codellama/CodeLlama-7b-hf",
