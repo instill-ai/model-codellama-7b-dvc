@@ -49,17 +49,20 @@ class CodeLlama:
 
         # https://huggingface.co/codellama/CodeLlama-7b-hf
         # Download through huggingface
+        ACCESS_TOKEN = "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"
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             "codellama/CodeLlama-7b-hf",
             torch_dtype=torch.float16,
             low_cpu_mem_usage=True,
+            token=ACCESS_TOKEN,
         )
         self.pipeline = transformers.pipeline(
             "text-generation",
             "codellama/CodeLlama-7b-hf",
             torch_dtype=torch.float16,
             device_map="cuda",
+            token=ACCESS_TOKEN,
             # use_safetensors=True,
         )
 
