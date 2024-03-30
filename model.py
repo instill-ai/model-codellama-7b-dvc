@@ -4,18 +4,11 @@ import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = f"0,1,2,3"
 os.environ["CUDA_VISIBLE_DEVICES"] = f"0"
 
-import io
 import time
-import requests
 import random
-import base64
-import ray
 import torch
 import transformers
 from transformers import AutoTokenizer
-from transformers import BitsAndBytesConfig
-
-from PIL import Image
 
 import numpy as np
 
@@ -43,25 +36,28 @@ from instill.helpers import (
 
 @instill_deployment
 class CodeLlama:
-    def __init__(self, model_path: str):
-        self.application_name = "_".join(model_path.split("/")[3:5])
-        self.deployement_name = model_path.split("/")[4]
+    def __init__(self):
         print(f"application_name: {self.application_name}")
         print(f"deployement_name: {self.deployement_name}")
         print(f"torch version: {torch.__version__}")
 
         print(f"torch.cuda.is_available() : {torch.cuda.is_available()}")
         print(f"torch.cuda.device_count() : {torch.cuda.device_count()}")
-        print(f"torch.cuda.current_device() : {torch.cuda.current_device()}")
-        print(f"torch.cuda.device(0) : {torch.cuda.device(0)}")
-        print(f"torch.cuda.get_device_name(0) : {torch.cuda.get_device_name(0)}")
+        # print(f"torch.cuda.current_device() : {torch.cuda.current_device()}")
+        # print(f"torch.cuda.device(0) : {torch.cuda.device(0)}")
+        # print(f"torch.cuda.get_device_name(0) : {torch.cuda.get_device_name(0)}")
+
+        # https://huggingface.co/codellama/CodeLlama-7b-hf
+        # Download through huggingface
 
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
+            "codellama/CodeLlama-7b-hf",
+            torch_dtype=torch.float16,
+            low_cpu_mem_usage=True,
         )
         self.pipeline = transformers.pipeline(
             "text-generation",
-            model=model_path,
+            "codellama/CodeLlama-7b-hf",
             torch_dtype=torch.float16,
             device_map="cuda",
             # use_safetensors=True,
@@ -235,23 +231,11 @@ class CodeLlama:
         )
 
 
-# Following codes only required in testing ..
-# class ModifiedInstillDeployable(InstillDeployable):
-#     def _update_num_gpus(self, num_gpus: float):
-#         if self._deployment.ray_actor_options is not None:
-#             self._deployment.ray_actor_options.update(
-#                 {"num_gpus": 1}
-#             )  # Test: Forcing GPU to be 4
-
-#     def _determine_vram_usage(self, model_path: str, total_vram: str):
-#         return 1
-
-
-deployable = InstillDeployable(
-    CodeLlama, model_weight_or_folder_name="CodeLlama-7b-hf/", use_gpu=True
+entrypoint = (
+    # https://github.com/instill-ai/python-sdk/blob/main/samples/tinyllama-gpu/model.py
+    InstillDeployable(CodeLlama)
+    .update_max_replicas(4)
+    .update_min_replicas(1)
+    .update_num_gpus(0.125)  # 5G/40G
+    .get_deployment_handle()
 )
-
-# # Optional
-# deployable.update_max_replicas(2)
-# deployable.update_min_replicas(0)
-# ...

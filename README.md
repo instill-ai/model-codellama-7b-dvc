@@ -13,6 +13,24 @@ This repository contains the Llama2-7b Text Completion Generation Model in the [
 
 Following is an example of query parameters:
 
+**Create Model**
+
+```json
+{
+    "id": "llamacode-7b-gpu",
+    "description": "Llamacode-7b, from Huggingface, is trained to generate text based on your prompts.",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "GPU",
+    "configuration": {
+        "task": "TASK_TEXT_GENERATION_CHAT"
+    }
+}
+```
+
+**Inference model**
+
 ```
 {
     "task_inputs": [
